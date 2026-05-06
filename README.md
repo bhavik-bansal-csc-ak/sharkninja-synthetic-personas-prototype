@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Synthetic Persona Intelligence — React
 
 Vite + React + Tailwind CSS rebuild of the Synthetic Persona Intelligence dashboard. Stitch-inspired "Clean Clinical" design language with Material You tokens.
@@ -62,6 +61,3 @@ All colors, type scale, spacing, and radius tokens live in `tailwind.config.js` 
 | `/new`                  | `NewSimulationPage`      |
 | `/personas`             | `PersonasPage`           |
 | `/insights`             | `InsightsPage`           |
-=======
-# sharkninja-synthetic-personas-prototype
->>>>>>> 0889c715afe763a04a269b22059e03b842502b00
