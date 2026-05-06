@@ -1,0 +1,91 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        // Stitch SyntheticPersona Research palette (Material You-inspired)
+        surface: "#faf8ff",
+        "surface-bright": "#ffffff",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#f2f3ff",
+        "surface-container": "#eaedff",
+        "surface-container-high": "#e1e7ff",
+        "surface-container-highest": "#dae2fc",
+        "surface-dim": "#d2d9f4",
+        "on-surface": "#131b2e",
+        "on-surface-variant": "#434654",
+        outline: "#737685",
+        "outline-variant": "#c3c6d6",
+        primary: "#003594",
+        "primary-container": "#004ac6",
+        "on-primary": "#ffffff",
+        "primary-fixed": "#dbe1ff",
+        "primary-fixed-dim": "#b4c5ff",
+        secondary: "#515f74",
+        "secondary-container": "#d2e1fa",
+        tertiary: "#6e2700",
+        "tertiary-container": "#943700",
+        "tertiary-fixed": "#ffdbcd",
+        error: "#ba1a1a",
+        "error-container": "#ffdad6",
+        success: "#0a7d3b",
+        "success-soft": "#e6f6ec",
+        warn: "#b25b00",
+        "warn-soft": "#fff3e0",
+        "inverse-surface": "#283044",
+        "inverse-on-surface": "#eef0ff",
+      },
+      borderRadius: {
+        sm: "0.25rem",
+        DEFAULT: "0.25rem",
+        md: "0.5rem",
+        lg: "0.75rem",
+      },
+      spacing: {
+        xs: "8px",
+        sm: "16px",
+        md: "24px",
+        margin: "32px",
+        lg: "40px",
+        xl: "64px",
+        gutter: "20px",
+      },
+      maxWidth: {
+        content: "1200px",
+      },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      fontSize: {
+        h1: ["36px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+        h2: ["24px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "600" }],
+        h3: ["18px", { lineHeight: "1.4", fontWeight: "600" }],
+        "body-base": ["15px", { lineHeight: "1.6", fontWeight: "400" }],
+        "body-sm": ["13px", { lineHeight: "1.5", fontWeight: "400" }],
+        button: ["14px", { lineHeight: "1", fontWeight: "500" }],
+        "label-caps": ["11px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "600" }],
+      },
+      boxShadow: {
+        sm: "0 1px 2px rgba(19,27,46,.04), 0 1px 3px rgba(19,27,46,.06)",
+        md: "0 4px 6px rgba(19,27,46,.05), 0 10px 15px rgba(19,27,46,.07)",
+        primary: "0 4px 14px rgba(0,74,198,.20)",
+      },
+      keyframes: {
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.35" },
+        },
+        fadeIn: {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "pulse-slow": "pulse 1.6s ease-in-out infinite",
+        "fade-in": "fadeIn .25s ease-out",
+      },
+    },
+  },
+  plugins: [],
+};
