@@ -3,7 +3,7 @@ export const simulations = [
   {
     id: "C-2041",
     archive: "ARCH-4829-PX",
-    preset: "Urban Parents",
+    preset: "Urban Parent",
     title: "Cordless Hand Vac",
     sku: "WV410BL",
     domain: "floor",
@@ -143,7 +143,7 @@ export const simulations = [
   {
     id: "C-2043",
     archive: "ARCH-4831-PX",
-    preset: "Renters 25–34",
+    preset: "Rental Renovator",
     title: "FlexStyle Air Styler",
     sku: "HD440",
     domain: "beauty",
@@ -372,7 +372,7 @@ export const simulations = [
   {
     id: "C-2047",
     archive: "ARCH-4834-PX",
-    preset: "Pet Households",
+    preset: "Family Handyman",
     title: "Pet-First Cordless",
     sku: "WV470GY",
     domain: "pet",
