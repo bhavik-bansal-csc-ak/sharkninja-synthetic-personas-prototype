@@ -52,10 +52,10 @@ export default function Sidebar() {
             </>
           )}
         </NavLink>
-        <NavLink to="/insights" className={navItem}>
+        {/* <NavLink to="/insights" className={navItem}>
           <IconStar size={20} />
           <span>Cross-Simulation</span>
-        </NavLink>
+        </NavLink> */}
       </nav>
     </aside>
   );

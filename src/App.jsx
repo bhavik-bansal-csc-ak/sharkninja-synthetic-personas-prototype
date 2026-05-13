@@ -17,7 +17,7 @@ export default function App() {
         <Route path="new" element={<NewSimulationPage />} />
         <Route path="personas" element={<PersonasPage />} />
         <Route path="personas/:slug" element={<PersonaDetailPage />} />
-        <Route path="insights" element={<InsightsPage />} />
+        {/* <Route path="insights" element={<InsightsPage />} /> */}
         <Route path="*" element={<Navigate to="/simulations" replace />} />
       </Route>
     </Routes>
