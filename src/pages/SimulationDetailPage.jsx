@@ -91,7 +91,7 @@ function FieldingView({ simulation: sim }) {
         <Stepper steps={["Define", "Simulate", "Results"]} current={1} />
       </div>
 
-      <DirectionalBanner />
+      {/* <DirectionalBanner /> */}
 
       <section className="card text-center" style={{ padding: "48px 32px" }}>
         <div className="text-[48px] font-bold text-primary-container tracking-tight">

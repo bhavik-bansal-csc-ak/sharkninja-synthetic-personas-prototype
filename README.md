@@ -18,6 +18,10 @@ npm run build
 npm run preview
 ```
 
+## Deploy to AWS Amplify
+
+`amplify.yml` and `customHttp.yml` ship at the project root. See [`DEPLOY.md`](./DEPLOY.md) for the full walkthrough, including the SPA rewrite rule (critical for React Router on direct visits / refresh).
+
 ## Project structure
 
 ```
