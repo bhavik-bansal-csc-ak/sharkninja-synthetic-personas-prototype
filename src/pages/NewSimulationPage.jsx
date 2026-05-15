@@ -1,34 +1,67 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Stepper, showToast } from "../components/ui";
 import { IconArrowRight, IconChevronLeft } from "../components/icons";
 import { personas } from "../data/personas";
 
-const ALL = "All Personas";
-// Presets derived from the Persona Library — guarantees presets stay in sync
-// with the archetypes the simulation will actually run against.
 const ARCHETYPES = Array.from(new Set(personas.map((p) => p.archetype)));
-const PRESETS = [ALL, ...ARCHETYPES];
+
+const PRESET_GROUPS = [
+  {
+    key: "archetype",
+    label: "Persona Archetype",
+    options: ARCHETYPES,
+    allLabel: "All Archetypes",
+  },
+  {
+    key: "age",
+    label: "Age Group",
+    options: ["18–24", "25–34", "35–44", "45–54", "55–64", "65+"],
+    allLabel: "All Ages",
+  },
+  {
+    key: "gender",
+    label: "Gender",
+    options: ["Female", "Male", "Non-binary"],
+    allLabel: "All Genders",
+  },
+  {
+    key: "income",
+    label: "Household Income",
+    options: ["Under $35K", "$35K–$75K", "$75K–$150K", "$150K+"],
+    allLabel: "All Income Levels",
+  },
+  {
+    key: "household",
+    label: "Household Composition",
+    options: ["Single", "Couple, no kids", "Family with kids", "Empty nester", "Multi-generational"],
+    allLabel: "All Household Types",
+  },
+];
+
+const ALL_KEY = "__ALL__";
 
 export default function NewSimulationPage() {
   const navigate = useNavigate();
-  const [activePresets, setActivePresets] = useState(new Set([ALL]));
+  const [presets, setPresets] = useState(
+    Object.fromEntries(PRESET_GROUPS.map((g) => [g.key, new Set([ALL_KEY])]))
+  );
   const [variance, setVariance] = useState(true);
   const [bias, setBias] = useState(false);
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
 
-  const togglePreset = (p) => {
-    setActivePresets((prev) => {
-      const next = new Set(prev);
-      if (p === ALL) {
-        return new Set([ALL]);
+  const toggleInGroup = (groupKey, option) => {
+    setPresets((prev) => {
+      const next = new Set(prev[groupKey]);
+      if (option === ALL_KEY) {
+        return { ...prev, [groupKey]: new Set([ALL_KEY]) };
       }
-      next.delete(ALL);
-      next.has(p) ? next.delete(p) : next.add(p);
-      if (next.size === 0) return new Set([ALL]);
-      return next;
+      next.delete(ALL_KEY);
+      next.has(option) ? next.delete(option) : next.add(option);
+      if (next.size === 0) return { ...prev, [groupKey]: new Set([ALL_KEY]) };
+      return { ...prev, [groupKey]: next };
     });
   };
 
@@ -42,6 +75,14 @@ export default function NewSimulationPage() {
     showToast("Simulation initialized — synthesis underway");
     setTimeout(() => navigate("/simulations"), 700);
   };
+
+  const activeFilterCount = PRESET_GROUPS.reduce((sum, g) => {
+    const set = presets[g.key];
+    return set.has(ALL_KEY) ? sum : sum + set.size;
+  }, 0);
+
+  const resetAll = () =>
+    setPresets(Object.fromEntries(PRESET_GROUPS.map((g) => [g.key, new Set([ALL_KEY])])));
 
   return (
     <>
@@ -92,23 +133,39 @@ export default function NewSimulationPage() {
           </Field>
         </div>
 
-        <Field label="Demographic Presets" className="mb-4">
-          <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => togglePreset(p)}
-                className={`chip ${activePresets.has(p) ? "active" : ""}`}
-              >
-                {p}
-              </button>
-            ))}
+        {/* Population filters — section header */}
+        <div className="flex items-center justify-between mb-3 mt-5">
+          <div className="flex items-center gap-2">
+            <span className="text-label-caps text-on-surface-variant">Population Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-semibold">
+                {activeFilterCount} active
+              </span>
+            )}
           </div>
-          <p className="text-[12px] text-on-surface-variant mt-2 m-0">
-            Default: <strong className="text-on-surface">All Personas</strong> runs the simulation across every archetype in the Persona Library. Pick specific cohorts to narrow the focus.
-          </p>
-        </Field>
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              onClick={resetAll}
+              className="text-[12px] text-on-surface-variant hover:text-primary-container hover:underline"
+            >
+              Reset all
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+          {PRESET_GROUPS.map((g) => (
+            <MultiSelectDropdown
+              key={g.key}
+              label={g.label}
+              options={g.options}
+              allLabel={g.allLabel}
+              selected={presets[g.key]}
+              onToggle={(opt) => toggleInGroup(g.key, opt)}
+            />
+          ))}
+        </div>
 
         <Field label="Questionnaire" className="mb-4">
           <input
@@ -181,7 +238,7 @@ export default function NewSimulationPage() {
             </div>
           )}
           <p className="text-[12px] text-on-surface-variant mt-2 m-0">
-            Upload the survey or interview guide the personas will respond to. Each question becomes a stimulus.
+            Upload the survey or interview guide the personas will respond to.
           </p>
         </Field>
 
@@ -222,12 +279,125 @@ export default function NewSimulationPage() {
   );
 }
 
+/* ---------- MultiSelectDropdown ---------- */
+function MultiSelectDropdown({ label, options, allLabel, selected, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const isAll = selected.has(ALL_KEY);
+  const summaryText = isAll
+    ? allLabel
+    : selected.size === 1
+    ? Array.from(selected)[0]
+    : `${selected.size} selected`;
+
+  return (
+    <div ref={wrapRef}>
+      <label className="block text-label-caps text-on-surface-variant mb-1.5">{label}</label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          className={[
+            "field-input flex items-center justify-between text-left w-full transition-colors",
+            open ? "ring-2 ring-primary-container/20 border-primary-container" : "",
+          ].join(" ")}
+        >
+          <span className={isAll ? "text-on-surface-variant" : "text-on-surface font-medium truncate"}>
+            {summaryText}
+          </span>
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className={["text-on-surface-variant transition-transform flex-shrink-0 ml-2", open ? "rotate-180" : ""].join(" ")}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        {open && (
+          <div
+            role="listbox"
+            className="absolute z-20 top-full left-0 right-0 mt-1 bg-surface-bright border border-outline-variant rounded-md shadow-md max-h-72 overflow-auto p-1"
+          >
+            <Option
+              label={allLabel}
+              checked={isAll}
+              onClick={() => onToggle(ALL_KEY)}
+              emphasised
+            />
+            <div className="border-t border-surface-container-high my-1" />
+            {options.map((o) => (
+              <Option
+                key={o}
+                label={o}
+                checked={!isAll && selected.has(o)}
+                onClick={() => onToggle(o)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Option({ label, checked, onClick, emphasised }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      role="option"
+      aria-selected={checked}
+      className={[
+        "w-full flex items-center gap-2.5 px-3 py-2 rounded text-[13px] text-left transition-colors",
+        checked
+          ? "bg-primary-fixed text-primary font-semibold"
+          : "text-on-surface hover:bg-surface-container-low",
+        emphasised && !checked ? "text-on-surface-variant" : "",
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "w-4 h-4 rounded border flex items-center justify-center flex-shrink-0",
+          checked
+            ? "bg-primary-container border-primary-container text-white"
+            : "bg-surface-bright border-outline-variant",
+        ].join(" ")}
+      >
+        {checked && (
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )}
+      </span>
+      <span className="truncate">{label}</span>
+    </button>
+  );
+}
+
 function Field({ label, className = "", children }) {
   return (
     <div className={className}>
-      <label className="block text-label-caps text-on-surface-variant mb-1.5">
-        {label}
-      </label>
+      <label className="block text-label-caps text-on-surface-variant mb-1.5">{label}</label>
       {children}
     </div>
   );
